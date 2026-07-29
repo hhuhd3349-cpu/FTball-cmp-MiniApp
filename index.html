@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Premier Football Companion</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+
+<div class="bg-pattern"></div>
+
+<!-- START SCREEN -->
+<section id="start-screen" class="screen active">
+  <img src="favicon.svg" alt="logo" class="crest-img">
+  <h1>Premier Football Companion</h1>
+  <p class="tagline">Your ultimate football match-day companion!</p>
+  <p class="desc">Explore tactical playbooks, classic fan chants, and test your knowledge with trivia.</p>
+  <button id="start-btn" class="btn-primary">/start</button>
+  <p class="hint">Tap to join the club</p>
+</section>
+
+<!-- HOME / MENU SCREEN -->
+<section id="home-screen" class="screen">
+  <header class="app-header">
+    <img src="favicon.svg" alt="logo" class="crest-img small">
+    <div>
+      <h2 id="welcome-text">Welcome to the Club</h2>
+      <p class="sub">What do you want to explore today?</p>
+    </div>
+  </header>
+
+  <div class="menu-grid">
+    <button class="menu-card" data-target="playbooks">
+      <span class="icon">📋</span>
+      <span class="label">Tactical Playbooks</span>
+      <span class="desc-sm">Formations, strategies & set pieces</span>
+    </button>
+
+    <button class="menu-card" data-target="chants">
+      <span class="icon">🎤</span>
+      <span class="label">Fan Chants</span>
+      <span class="desc-sm">Classic terrace anthems</span>
+    </button>
+
+    <button class="menu-card" data-target="trivia">
+      <span class="icon">🏆</span>
+      <span class="label">Trivia Challenge</span>
+      <span class="desc-sm">Test your football knowledge</span>
+    </button>
+
+    <button class="menu-card" data-target="leaderboard">
+      <span class="icon">📊</span>
+      <span class="label">Leaderboard</span>
+      <span class="desc-sm">See how you rank against the club</span>
+    </button>
+  </div>
+</section>
+
+<!-- PLAYBOOKS SCREEN -->
+<section id="playbooks-screen" class="screen">
+  <header class="sub-header">
+    <button class="back-btn">← Back</button>
+    <h2>Tactical Playbooks</h2>
+  </header>
+  <div class="card-list" id="playbooks-list"></div>
+</section>
+
+<!-- CHANTS SCREEN -->
+<section id="chants-screen" class="screen">
+  <header class="sub-header">
+    <button class="back-btn">← Back</button>
+    <h2>Fan Chants</h2>
+  </header>
+  <div class="card-list" id="chants-list"></div>
+</section>
+
+<!-- TRIVIA SCREEN -->
+<section id="trivia-screen" class="screen">
+  <header class="sub-header">
+    <button class="back-btn">← Back</button>
+    <h2>Trivia Challenge</h2>
+  </header>
+
+  <div id="trivia-box">
+    <div class="score-bar">
+      <span id="q-count">Question 1 / 5</span>
+      <span id="score">Score: 0</span>
+    </div>
+    <h3 id="question-text"></h3>
+    <div id="options"></div>
+    <button id="next-btn" class="btn-primary" style="display:none;">Next Question →</button>
+  </div>
+
+  <div id="result-box" style="display:none;">
+    <img src="favicon.svg" alt="logo" class="crest-img">
+    <h2 id="result-title"></h2>
+    <p id="result-msg"></p>
+    <button id="retry-btn" class="btn-primary">Play Again</button>
+  </div>
+</section>
+
+<!-- LEADERBOARD SCREEN -->
+<section id="leaderboard-screen" class="screen">
+  <header class="sub-header">
+    <button class="back-btn">← Back</button>
+    <h2>Leaderboard</h2>
+  </header>
+  <div class="card-list" id="leaderboard-list"></div>
+  <p id="leaderboard-empty" class="hint" style="display:none;">No scores yet — play the trivia challenge to appear here!</p>
+</section>
+
+<script src="script.js"></script>
+</body>
+</html>
