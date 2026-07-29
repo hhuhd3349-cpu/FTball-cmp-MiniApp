@@ -1,0 +1,46 @@
+/* Add / replace these rules in style.css */
+
+.crest-img{
+  width:64px;
+  height:64px;
+  filter:drop-shadow(0 4px 12px rgba(0,0,0,0.3));
+  animation:bounce 2.2s ease-in-out infinite;
+}
+.crest-img.small{ width:36px; height:36px; animation:none; }
+
+/* Telegram theme adapts these variables at runtime via JS */
+body.tg-app{
+  background:radial-gradient(circle at top, var(--tg-green, var(--green)) 0%, var(--green-dark) 65%);
+}
+
+/* Leaderboard */
+.lb-row{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  background:var(--card-bg);
+  border:1px solid var(--card-border);
+  border-radius:14px;
+  padding:14px 16px;
+}
+.lb-rank{
+  font-weight:800;
+  font-size:16px;
+  width:28px;
+  text-align:center;
+  color:var(--gold);
+}
+.lb-row:nth-child(1) .lb-rank{ color:#ffd700; }
+.lb-row:nth-child(2) .lb-rank{ color:#c0c0c0; }
+.lb-row:nth-child(3) .lb-rank{ color:#cd7f32; }
+.lb-info{ flex:1; }
+.lb-name{ font-weight:700; font-size:14.5px; }
+.lb-date{ font-size:11.5px; color:rgba(255,255,255,0.55); }
+.lb-score{
+  font-weight:800;
+  font-size:15px;
+  color:var(--green-light);
+  background:rgba(20,169,77,0.15);
+  padding:4px 10px;
+  border-radius:10px;
+}
