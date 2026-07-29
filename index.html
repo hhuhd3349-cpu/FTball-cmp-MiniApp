@@ -6,21 +6,90 @@
 <title>Premier Football Companion</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="stylesheet" href="style.css">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
 
 <div class="bg-pattern"></div>
+<div class="glow-orb orb-1"></div>
+<div class="glow-orb orb-2"></div>
 
-<!-- START SCREEN -->
+<!-- START / LANDING SCREEN -->
 <section id="start-screen" class="screen active">
-  <img src="favicon.svg" alt="logo" class="crest-img">
-  <h1>Premier Football Companion</h1>
+  <div class="floaters">
+    <span class="floater f1">⚽</span>
+    <span class="floater f2">🏆</span>
+    <span class="floater f3">🎯</span>
+    <span class="floater f4">🎤</span>
+  </div>
+
+  <div class="crest-ring">
+    <img src="favicon.svg" alt="logo" class="crest-img">
+  </div>
+
+  <span class="live-badge"><span class="dot"></span> LIVE NOW</span>
+
+  <h1>Premier Football<br>Companion</h1>
   <p class="tagline">Your ultimate football match-day companion!</p>
   <p class="desc">Explore tactical playbooks, classic fan chants, and test your knowledge with trivia.</p>
-  <button id="start-btn" class="btn-primary">/start</button>
-  <p class="hint">Tap to join the club</p>
+
+  <button id="start-btn" class="btn-primary">
+    <span>/start</span>
+  </button>
+  <p class="hint">Tap to join the club →</p>
+
+  <div class="stat-row">
+    <div class="stat"><strong>5</strong><span>Trivia Rounds</span></div>
+    <div class="stat"><strong>10+</strong><span>Playbooks</span></div>
+    <div class="stat"><strong>∞</strong><span>Chants</span></div>
+  </div>
+</section>
+
+<!-- JOIN THE CLUB FORM SCREEN -->
+<section id="join-screen" class="screen">
+  <div class="form-wrap">
+    <img src="favicon.svg" alt="logo" class="crest-img small">
+    <h2>Join the Club</h2>
+    <p class="sub center">Tell us a little about yourself before kickoff</p>
+
+    <form id="join-form" novalidate>
+      <label class="field">
+        <span>Your Name</span>
+        <input type="text" id="name-input" placeholder="e.g. Sam Okafor" maxlength="24" required>
+      </label>
+
+      <label class="field">
+        <span>Favorite Club</span>
+        <select id="club-input">
+          <option value="">Select a club (optional)</option>
+          <option>Arsenal</option>
+          <option>Chelsea</option>
+          <option>Liverpool</option>
+          <option>Manchester City</option>
+          <option>Manchester United</option>
+          <option>Real Madrid</option>
+          <option>Barcelona</option>
+          <option>Bayern Munich</option>
+          <option>Other</option>
+        </select>
+      </label>
+
+      <label class="field">
+        <span>Favorite Position</span>
+        <div class="pill-group" id="position-group">
+          <button type="button" class="pill" data-value="Goalkeeper">GK</button>
+          <button type="button" class="pill" data-value="Defender">DEF</button>
+          <button type="button" class="pill" data-value="Midfielder">MID</button>
+          <button type="button" class="pill" data-value="Forward">FWD</button>
+        </div>
+      </label>
+
+      <p class="field-error" id="form-error"></p>
+
+      <button type="submit" class="btn-primary full">Enter the Club</button>
+    </form>
+  </div>
 </section>
 
 <!-- HOME / MENU SCREEN -->
@@ -29,7 +98,7 @@
     <img src="favicon.svg" alt="logo" class="crest-img small">
     <div>
       <h2 id="welcome-text">Welcome to the Club</h2>
-      <p class="sub">What do you want to explore today?</p>
+      <p class="sub" id="welcome-sub">What do you want to explore today?</p>
     </div>
   </header>
 
@@ -109,6 +178,7 @@
     <button class="back-btn">← Back</button>
     <h2>Leaderboard</h2>
   </header>
+  <div id="leaderboard-loading" class="hint">Loading scores…</div>
   <div class="card-list" id="leaderboard-list"></div>
   <p id="leaderboard-empty" class="hint" style="display:none;">No scores yet — play the trivia challenge to appear here!</p>
 </section>
