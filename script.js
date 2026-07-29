@@ -1,13 +1,12 @@
 // ---------- TELEGRAM WEBAPP INIT ----------
 const tg = window.Telegram?.WebApp;
-let currentUserName = "Guest";
+let currentUser = { name: "", club: "", position: "" };
+let skipJoinForm = false;
 
 if (tg) {
   tg.ready();
   tg.expand();
   document.body.classList.add('tg-app');
-
-  // Adapt to Telegram's theme colors if available
   if (tg.themeParams?.bg_color) {
     document.documentElement.style.setProperty('--tg-green', tg.themeParams.bg_color);
   }
@@ -16,16 +15,13 @@ if (tg) {
 
   const tgUser = tg.initDataUnsafe?.user;
   if (tgUser?.first_name) {
-    currentUserName = tgUser.first_name;
+    currentUser.name = tgUser.first_name;
+    skipJoinForm = true;
   }
-
-  // Disable vertical swipe-to-close so trivia scrolling feels native
   tg.disableVerticalSwipes?.();
 }
 
-function haptic(style = 'light'){
-  tg?.HapticFeedback?.impactOccurred?.(style);
-}
+function haptic(style = 'light'){ tg?.HapticFeedback?.impactOccurred?.(style); }
 
 // ---------- DATA ----------
 const playbooks = [
@@ -55,6 +51,8 @@ const triviaQuestions = [
 // ---------- STATE ----------
 let triviaIndex = 0;
 let score = 0;
+const LB_API = "/api/leaderboard";
+const LB_KEY_LOCAL = "fc_leaderboard"; // offline fallback
 
 // ---------- SCREEN NAVIGATION ----------
 function showScreen(id){
@@ -65,9 +63,46 @@ function showScreen(id){
 
 document.getElementById('start-btn').addEventListener('click', () => {
   haptic();
+  if (skipJoinForm) {
+    enterClub();
+  } else {
+    showScreen('join-screen');
+  }
+});
+
+function enterClub(){
   document.getElementById('welcome-text').textContent =
-    currentUserName !== "Guest" ? `Welcome, ${currentUserName}!` : "Welcome to the Club";
+    currentUser.name ? `Welcome, ${currentUser.name}!` : "Welcome to the Club";
+  document.getElementById('welcome-sub').textContent =
+    currentUser.club ? `${currentUser.club} fan · What do you want to explore today?` : "What do you want to explore today?";
   showScreen('home-screen');
+}
+
+// ---------- JOIN FORM ----------
+document.querySelectorAll('#position-group .pill').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#position-group .pill').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    currentUser.position = btn.dataset.value;
+    haptic();
+  });
+});
+
+document.getElementById('join-form').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const nameVal = document.getElementById('name-input').value.trim();
+  const errorEl = document.getElementById('form-error');
+
+  if (!nameVal) {
+    errorEl.textContent = "Please enter your name to join the club.";
+    haptic('rigid');
+    return;
+  }
+  errorEl.textContent = "";
+  currentUser.name = nameVal;
+  currentUser.club = document.getElementById('club-input').value;
+  haptic('medium');
+  enterClub();
 });
 
 document.querySelectorAll('.menu-card').forEach(card => {
@@ -80,10 +115,7 @@ document.querySelectorAll('.menu-card').forEach(card => {
 });
 
 document.querySelectorAll('.back-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    haptic();
-    showScreen('home-screen');
-  });
+  btn.addEventListener('click', () => { haptic(); showScreen('home-screen'); });
 });
 
 // ---------- RENDER LISTS ----------
@@ -147,11 +179,8 @@ function selectAnswer(idx){
 document.getElementById('next-btn').addEventListener('click', () => {
   haptic();
   triviaIndex++;
-  if (triviaIndex < triviaQuestions.length){
-    loadQuestion();
-  } else {
-    showResult();
-  }
+  if (triviaIndex < triviaQuestions.length) loadQuestion();
+  else showResult();
 });
 
 function showResult(){
@@ -161,54 +190,56 @@ function showResult(){
 
   const total = triviaQuestions.length;
   let title, msg;
-  if (score === total){
-    title = "Legend! 🏆";
-    msg = `Perfect score — ${score}/${total}. You know your football!`;
-  } else if (score >= total * 0.6){
-    title = "Solid Performance ⚽";
-    msg = `You scored ${score}/${total}. Great football IQ!`;
-  } else {
-    title = "Keep Learning 📘";
-    msg = `You scored ${score}/${total}. Explore the playbooks and try again!`;
-  }
+  if (score === total){ title = "Legend! 🏆"; msg = `Perfect score — ${score}/${total}. You know your football!`; }
+  else if (score >= total * 0.6){ title = "Solid Performance ⚽"; msg = `You scored ${score}/${total}. Great football IQ!`; }
+  else { title = "Keep Learning 📘"; msg = `You scored ${score}/${total}. Explore the playbooks and try again!`; }
+
   document.getElementById('result-title').textContent = title;
   document.getElementById('result-msg').textContent = msg;
 
-  saveScore(currentUserName, score, total);
+  saveScore(currentUser.name || "Guest", score, total);
 }
 
-document.getElementById('retry-btn').addEventListener('click', () => {
-  haptic();
-  startTrivia();
-});
+document.getElementById('retry-btn').addEventListener('click', () => { haptic(); startTrivia(); });
 
-// ---------- LEADERBOARD (localStorage) ----------
-const LB_KEY = 'fc_leaderboard';
-
-function saveScore(name, score, total){
-  const entries = JSON.parse(localStorage.getItem(LB_KEY) || '[]');
-  entries.push({
-    name,
-    score,
-    total,
-    date: new Date().toLocaleDateString()
-  });
-  // keep top 20 by score
-  entries.sort((a, b) => b.score - a.score);
-  localStorage.setItem(LB_KEY, JSON.stringify(entries.slice(0, 20)));
+// ---------- LEADERBOARD (backend + offline fallback) ----------
+async function saveScore(name, score, total){
+  try {
+    await fetch(LB_API, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, score, total })
+    });
+  } catch (err) {
+    // offline fallback
+    const entries = JSON.parse(localStorage.getItem(LB_KEY_LOCAL) || '[]');
+    entries.push({ name, score, total, date: new Date().toLocaleDateString() });
+    entries.sort((a, b) => b.score - a.score);
+    localStorage.setItem(LB_KEY_LOCAL, JSON.stringify(entries.slice(0, 20)));
+  }
 }
 
-function renderLeaderboard(){
-  const entries = JSON.parse(localStorage.getItem(LB_KEY) || '[]');
+async function renderLeaderboard(){
   const list = document.getElementById('leaderboard-list');
   const empty = document.getElementById('leaderboard-empty');
+  const loading = document.getElementById('leaderboard-loading');
+  loading.style.display = 'block';
+  list.innerHTML = '';
+  empty.style.display = 'none';
 
-  if (entries.length === 0){
-    list.innerHTML = '';
+  let entries = [];
+  try {
+    const res = await fetch(LB_API);
+    entries = await res.json();
+  } catch (err) {
+    entries = JSON.parse(localStorage.getItem(LB_KEY_LOCAL) || '[]');
+  }
+  loading.style.display = 'none';
+
+  if (!entries || entries.length === 0) {
     empty.style.display = 'block';
     return;
   }
-  empty.style.display = 'none';
 
   list.innerHTML = entries.map((e, i) => `
     <div class="lb-row">
